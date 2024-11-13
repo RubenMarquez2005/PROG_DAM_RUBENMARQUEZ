@@ -43,7 +43,7 @@ def realizar_compra(): # Función para realizar una compra
             print(f"{id_producto}: {info['nombre']} - ${info['precio']}")
         while True: # Bucle para agregar productos al carrito
             id_producto = int(input("Seleccione el ID del producto para agregar al carrito (0 para finalizar): "))
-            if id_producto == 'fin': # Si el usuario ingresa 'fin', finalizamos la compra
+            if id_producto == 0: # Si el usuario ingresa 'fin', finalizamos la compra
                 break
             if id_producto in productos:
                 carrito.append(productos[id_producto]) # Agregamos el producto al carrito
