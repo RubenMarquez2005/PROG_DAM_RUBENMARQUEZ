@@ -163,33 +163,57 @@ def eliminar_pedido(id_pedido):
     print("Pedido eliminado")
 
 # CRUD para la tabla Detalles (dependiente de Pedidos)
-def crear_detalle(id_detalle, id_pedido, id_producto, cantidad):
-    conexion = conectar()
-    cursor = conexion.cursor()
-    sql = "INSERT INTO detalle (iddetalle, idpedido, idproducto, cantidad) VALUES (%s, %s, %s, %s)"
-    cursor.execute(sql, (id_detalle, id_pedido, id_producto, cantidad))
-    conexion.commit()
-    conexion.close()
-    print("Detalle creado")
+# Crear un detalle
+def crear_detalle(id_pedido, id_producto, cantidad):
+    try:
+        conexion = conectar()
+        cursor = conexion.cursor()
+        precio = float(input("Introduce el precio del producto: "))
+        descuento = float(input("Introduce el descuento (0 si no aplica): "))
+        sql = "INSERT INTO detalle (idpedido, idproducto, precio, unidades, descuento) VALUES (%s, %s, %s, %s, %s)"
+        cursor.execute(sql, (id_pedido, id_producto, precio, cantidad, descuento))
+        conexion.commit()
+        print("Detalle creado exitosamente.")
+    except Exception as e:#POR SI DA ERROR
+        print(f"Error al crear el detalle: {e}")
+    finally:
+        conexion.close() #SE CIERRA LA CARRETERA
 
+# Leer detalles de un pedido
 def leer_detalles(id_pedido):
-    conexion = conectar()
-    cursor = conexion.cursor()
-    sql = "SELECT * FROM detalle WHERE idpedido = %s"
-    cursor.execute(sql, (id_pedido,))
-    detalles = cursor.fetchall()
-    conexion.close()
-    for detalle in detalles:
-        print(detalle)
+    try:
+        conexion = conectar()
+        cursor = conexion.cursor()
+        sql = "SELECT * FROM detalle WHERE idpedido = %s"
+        cursor.execute(sql, (id_pedido,))
+        detalles = cursor.fetchall()
+        if detalles:
+            print("\nDetalles encontrados:")
+            for detalle in detalles:
+                print(f"ID Pedido: {detalle[0]}, ID Producto: {detalle[1]}, Precio: {detalle[2]}, Cantidad: {detalle[3]}, Descuento: {detalle[4]}")
+        else:
+            print("No se encontraron detalles para este pedido.")
+    except Exception as e:
+        print(f"Error al leer los detalles: {e}") #POR SI DA ERROR
+    finally:
+        conexion.close()
 
-def eliminar_detalle(id_detalle):
-    conexion = conectar()
-    cursor = conexion.cursor()
-    sql = "DELETE FROM detalle WHERE iddetalle = %s"
-    cursor.execute(sql, (id_detalle,))
-    conexion.commit()
-    conexion.close()
-    print("Detalle eliminado")
+# Eliminar un detalle
+def eliminar_detalle(id_pedido, id_producto):
+    try:
+        conexion = conectar()
+        cursor = conexion.cursor()
+        sql = "DELETE FROM detalle WHERE idpedido = %s AND idproducto = %s"
+        cursor.execute(sql, (id_pedido, id_producto))
+        conexion.commit()
+        if cursor.rowcount > 0:
+            print("Detalle eliminado exitosamente.")
+        else:
+            print("No se encontró ningún detalle con esos datos.")
+    except Exception as e:
+        print(f"Error al eliminar el detalle: {e}") #POR SI DA ERROR ALGO.
+    finally:
+        conexion.close()
 
 # Menú de operaciones CRUD para Categorías
 def menu_categoria():
@@ -330,17 +354,17 @@ def menu_detalle():
         
         opcion = input("Elige una opción: ")
         if opcion == "1":
-            id_detalle = input("Introduce el ID del detalle: ")
             id_pedido = input("Introduce el ID del pedido: ")
             id_producto = input("Introduce el ID del producto: ")
-            cantidad = input("Introduce la cantidad: ")
-            crear_detalle(id_detalle, id_pedido, id_producto, cantidad)
+            cantidad = int(input("Introduce la cantidad: "))
+            crear_detalle(id_pedido, id_producto, cantidad)
         elif opcion == "2":
             id_pedido = input("Introduce el ID del pedido para leer detalles: ")
             leer_detalles(id_pedido)
         elif opcion == "3":
-            id_detalle = input("Introduce el ID del detalle: ")
-            eliminar_detalle(id_detalle)
+            id_pedido = input("Introduce el ID del pedido: ")
+            id_producto = input("Introduce el ID del producto: ")
+            eliminar_detalle(id_pedido, id_producto)
         elif opcion == "4":
             break
         else:
